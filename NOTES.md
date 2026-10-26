@@ -64,7 +64,7 @@ Docs conseillées : https://angular.io/ · https://getbootstrap.com/ · https://
 ### API Prochains passages — requête unitaire (temps réel)
 
 - Page : https://prim.iledefrance-mobilites.fr/fr/apis/idfm-ivtr-requete_unitaire
-- Point d'entrée affiché : `GET /stop-monitoring/{MonitoringRef}` (chemin exact à confirmer dans l'assistant requêtage une fois connecté).
+- Appel validé (200) : `GET https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=STIF:StopArea:SP:71264:` (zone de correspondance Châtelet).
 - Format **SIRI Lite** (JSON), licence Mobilité / ODbL.
 - Temps réel disponible seulement sur **une partie du réseau**. Liste des arrêts couverts : jeu de données **« Périmètre des données temps réel disponibles »**.
 - Identifiants à utiliser (**différents** de ceux du Calculateur !) :
@@ -80,7 +80,7 @@ Docs conseillées : https://angular.io/ · https://getbootstrap.com/ · https://
 | Calculateur (générique) | 10 req/s, 20 000 req/jour | **5 req/s, 1 000 req/jour** |
 | Prochains passages (unitaire) | 100 req/s, 1 000 000 req/jour | **5 req/s, 1 000 req/jour** |
 
-- Notre jeton sera récent : **prévoir 5 req/s et 1 000 req/jour** par API, et vérifier sur la page « Ma consommation API » (où l'on peut aussi demander plus de quota).
+- **Confirmé** sur « Ma consommation API » : 1 000 requêtes/jour pour Prochains passages (unitaire). On peut y demander plus de quota (« Augmenter le quota sur cette API »). **Prévoir 1 000 req/jour par API.**
 - Conséquences pour le code :
   - **Autocomplétion** : `debounceTime(300–400 ms)`, minimum 3 caractères, `distinctUntilChanged`, annulation avec `switchMap`
   - **Cache** des réponses (Map en mémoire / `shareReplay`) pour ne pas redemander la même chose
@@ -94,7 +94,15 @@ Test depuis une page tierce (`example.com`), sans clé :
 - `https://prim.iledefrance-mobilites.fr/marketplace/v2/navitia/places?q=…` → **401** lisible par le navigateur, y compris avec un en-tête `apiKey` (donc la requête préliminaire CORS est acceptée)
 - `https://data.iledefrance-mobilites.fr/api/explore/v2.1/catalog/datasets` (portail Open Data, **sans clé**) → **200** lisible
 
-→ **Pas besoin de cors-anywhere ni de proxy** a priori. À reconfirmer avec la vraie clé depuis `localhost:4200`.
+**Confirmé avec la vraie clé, depuis `http://localhost:4200` (test fetch dans la console du navigateur, 2026-10-26) :**
+
+| Appel | Résultat |
+|---|---|
+| `/marketplace/v2/navitia/places?q=chatelet` | CORS OK, **200** |
+| `/marketplace/v2/navitia/line_reports?count=1` | CORS OK, **200** |
+| `/marketplace/stop-monitoring?MonitoringRef=STIF:StopArea:SP:71264:` | CORS OK, **200** |
+
+→ **Pas besoin de cors-anywhere ni de proxy** : Angular peut appeler PRIM directement avec l'en-tête `apiKey`.
 
 ## Fonctionnalités (5 minimum, à faire valider par le prof)
 
@@ -123,11 +131,12 @@ Règle : ces enrichissements se **branchent sur les 5 fonctionnalités** (ex. l'
 
 ### À faire / à vérifier avant de coder
 
-- [ ] Créer le compte PRIM, **générer le jeton** (le copier une seule fois !) et souscrire aux API nécessaires
-- [ ] Tester `places` et `journeys` dans le **playground Navitia** avec le jeton
-- [ ] Tester `stop-monitoring` sur un arrêt couvert (consulter « Périmètre des données temps réel »)
-- [ ] Relever dans « Ma consommation API » les **quotas réels** de notre jeton
-- [ ] Vérifier le **CORS depuis `localhost:4200`** avec la vraie clé
+- [x] Créer le compte PRIM, **générer le jeton** (le copier une seule fois !) et souscrire aux API nécessaires
+- [x] Tester `places` avec le jeton (curl, 200)
+- [ ] Tester `journeys` (itinéraire) et regarder la structure de la réponse
+- [x] Tester `stop-monitoring` sur un arrêt (Châtelet, 200) — reste à choisir des arrêts couverts en temps réel (« Périmètre des données temps réel »)
+- [x] Relever dans « Ma consommation API » les **quotas réels** de notre jeton (1 000 req/jour)
+- [x] Vérifier le **CORS depuis `localhost:4200`** avec la vraie clé (OK sur les 3 API)
 - [ ] Vérifier que les jeux de données de différenciation sont interrogeables par l'API Open Data (`data.iledefrance-mobilites.fr`)
 - [ ] **Sécurité de la clé** : visible dans le navigateur. Acceptable pour un projet de cours : la mettre dans `environment.ts`, **ne pas la commiter**, fournir un `environment.example.ts`
 - [ ] **Plan B** (mock JSON / MirageJS) si l'API est indisponible ou le quota épuisé le jour de la démo (surveillance : page « État des API » de PRIM)
