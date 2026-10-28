@@ -1,0 +1,10 @@
+<section class="page">
+  <h1>Horaires</h1>
+  <p class="lead">Les prochains passages à un arrêt, en temps réel.</p>
+  <div class="card">
+    <p><strong>En construction.</strong> Cet écran utilisera <code>HorairesApi</code> (API Prochains passages, <code>/stop-monitoring</code>).</p>
+    @if (stopAreaId(); as id) {
+      <p>Arrêt demandé dans l'URL : <code>{{ id }}</code></p>
+    }
+  </div>
+</section>

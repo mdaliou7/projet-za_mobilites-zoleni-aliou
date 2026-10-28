@@ -155,9 +155,13 @@ Règle : ces enrichissements se **branchent sur les 5 fonctionnalités** (ex. l'
 
 ## Design
 
-- **Bootstrap ou Angular Material** pour les composants, mais **mise en page et identité à nous** (pas de template prêt à l'emploi ; ne pas utiliser non plus le widget « Marque-Grise » d'IDFM)
+- **Décision (2026-10-28) : SCSS pur, fait maison**, sans Bootstrap ni Angular Material. Variables et mixins dans `src/styles/` (`_variables.scss`, `_mixins.scss`), briques communes (`.page`, `.card`, `.btn`) dans `src/styles.scss`. Pas de template prêt à l'emploi, ni le widget « Marque-Grise » d'IDFM.
 - Couleurs des lignes IDFM reprises depuis les données de l'API
-- Responsive (usage mobile très probable pour une appli de transport)
+- Responsive : en-tête avec liens sur grand écran, **barre d'onglets en bas sur mobile** (comme l'appli IDFM)
+
+## Architecture (validée le 2026-10-28)
+
+Détail et règles de dépendances dans le [README](README.md#architecture-de-lapplication) : `services/` (un service par domaine, `@Service()`), `interceptors/`, `models/`, `config/`, `layout/`, `pages/` (routes en lazy loading, `page404` pour les URL inconnues), `components/` (réutilisables).
 
 ## Organisation
 

@@ -1,1 +1,94 @@
-/* You can add global styles to this file, and also import other style files */
+@use 'styles/variables' as *;
+@use 'styles/mixins' as *;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: $bg;
+  color: $text;
+  font-family: $font-family;
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3 {
+  margin-top: 0;
+  line-height: 1.25;
+}
+
+a {
+  color: $primary;
+}
+
+code {
+  font-family: $font-mono;
+  font-size: 0.9em;
+}
+
+// --- Briques communes à toutes les pages ---------------------------------------------------
+
+.page {
+  max-width: $content-max-width;
+  margin: 0 auto;
+  padding: $space-5 $space-4 $space-6;
+}
+
+.lead {
+  color: $muted;
+  font-size: 1.05rem;
+}
+
+.card {
+  @include card;
+  padding: $space-4;
+}
+
+.btn {
+  @include button-base;
+  background: $primary;
+  color: $on-primary;
+
+  &:hover:not(:disabled) {
+    background: $primary-hover;
+  }
+
+  &.btn-secondary {
+    background: $surface;
+    border-color: $border-strong;
+    color: $text;
+
+    &:hover:not(:disabled) {
+      background: $bg;
+    }
+  }
+}
+
+input,
+select,
+textarea {
+  padding: $space-2 $space-3;
+  border: 1px solid $border-strong;
+  border-radius: $radius;
+  background: $surface;
+  color: inherit;
+  font: inherit;
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

@@ -1,0 +1,96 @@
+<main class="dev-api">
+  <h1>Bac à sable API PRIM</h1>
+  <p class="intro">
+    Chaque bouton envoie une seule requête. Requêtes PRIM envoyées aujourd'hui depuis ce
+    navigateur : <strong>{{ usage.requestsToday() }}</strong> (quota : 1 000 par jour et par API).
+  </p>
+
+  <section class="panel">
+    <h2>Lieux</h2>
+    <label>
+      Recherche
+      <input type="text" [(ngModel)]="placeQuery" />
+    </label>
+    <button type="button" (click)="searchPlaces()" [disabled]="loading() || placeQuery().length < 3">
+      Chercher
+    </button>
+  </section>
+
+  <section class="panel">
+    <h2>Itinéraire</h2>
+    <label>
+      Départ (<code>lon;lat</code> ou id Navitia)
+      <input type="text" [(ngModel)]="journeyFrom" />
+    </label>
+    <label>
+      Arrivée
+      <input type="text" [(ngModel)]="journeyTo" />
+    </label>
+    <button type="button" (click)="getJourneys()" [disabled]="loading()">Calculer</button>
+  </section>
+
+  <section class="panel">
+    <h2>Infos trafic</h2>
+    <label>
+      Mode
+      <select [(ngModel)]="trafficMode">
+        <option value="physical_mode:Metro">Métro</option>
+        <option value="physical_mode:Tramway">Tramway (id à confirmer)</option>
+        <option value="physical_mode:RapidTransit">RER (id à confirmer)</option>
+        <option value="sans-bus">Tout sauf les bus (20 lignes)</option>
+        <option value="tout">Sans filtre (5 lignes, surtout des bus)</option>
+      </select>
+    </label>
+    <button type="button" (click)="getTraffic()" [disabled]="loading()">Voir les perturbations</button>
+  </section>
+
+  <section class="panel">
+    <h2>Prochains passages</h2>
+    <label>
+      Arrêt (<code>STIF:StopArea:SP:…:</code>)
+      <input type="text" [(ngModel)]="monitoringRef" />
+    </label>
+    <button type="button" (click)="getDepartures()" [disabled]="loading()">Voir les passages</button>
+  </section>
+
+  <section class="results">
+    <div class="results-header">
+      <h2>Résultats</h2>
+      @if (logs().length > 0) {
+        <button type="button" class="secondary" (click)="clearLogs()">Effacer</button>
+      }
+    </div>
+
+    @for (log of logs(); track log.id) {
+      <article class="log" [class.log-error]="!log.ok">
+        <header>
+          <span class="badge">{{ log.ok ? 'OK' : 'Erreur' }}</span>
+          <strong>{{ log.label }}</strong>
+          <span class="duration">{{ log.durationMs }} ms</span>
+        </header>
+        <p>{{ log.summary }}</p>
+        <details>
+          <summary>Réponse brute</summary>
+          <div class="raw">
+            <button type="button" class="secondary copy" (click)="copyRaw(log)">
+              @switch (copyStatus()?.id === log.id ? copyStatus()?.status : null) {
+                @case ('copied') {
+                  Copié ✓
+                }
+                @case ('failed') {
+                  Échec : sélectionne le texte à la main
+                }
+                @default {
+                  Copier le JSON
+                }
+              }
+            </button>
+            <pre>{{ log.raw | json }}</pre>
+          </div>
+        </details>
+      </article>
+    } @empty {
+      <p class="empty">Aucun appel pour l'instant.</p>
+    }
+  </section>
+</main>

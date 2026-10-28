@@ -24,7 +24,7 @@ Chaque fonctionnalité repose sur un appel d'API, comme l'exige le sujet.
 
 - [Angular](https://angular.dev) 22 (composants, routing, services, `HttpClient`, formulaires réactifs, signals)
 - [RxJS](https://rxjs.dev) (`debounceTime`, `switchMap`, `shareReplay`, rafraîchissement périodique)
-- SCSS, avec Bootstrap ou Angular Material pour les composants (mise en page et identité propres, aucun template prêt à l'emploi)
+- SCSS pur, fait maison (variables et mixins dans `src/styles/`), sans Bootstrap ni Angular Material : aucun template prêt à l'emploi
 - [Vitest](https://vitest.dev) + jsdom pour les tests unitaires
 - Prettier pour le formatage
 
@@ -87,13 +87,54 @@ Le détail de ces vérifications se trouve dans [NOTES.md](NOTES.md) et [PRIM-AP
 
 ```
 .
-├── src/                 Code de l'application Angular
+├── src/                 Code de l'application Angular (détail ci-dessous)
 ├── public/              Fichiers statiques
+├── scripts/             generate-env.mjs : génère environment.ts depuis .env
 ├── NOTES.md             Cadrage, quotas, CORS, planning, démo
 ├── PRIM-API-infos.md    Catalogue des API et jeux de données PRIM
 ├── Projet.pdf           Sujet du projet
 └── angular.json         Configuration Angular CLI
 ```
+
+## Architecture de l'application
+
+```
+src/
+├── styles.scss · styles/        SCSS maison : _variables.scss, _mixins.scss
+├── environments/                environment.ts (généré depuis .env, ignoré par git)
+└── app/
+    ├── app.ts · app.config.ts · app.routes.ts    coquille, configuration, routes
+    ├── services/        TOUS les services (@Service), un fichier par domaine :
+    │                    lieux-api, itineraire-api, horaires-api, trafic-api, prim-usage
+    ├── interceptors/    prim-api-key (ajoute l'en-tête apiKey), prim-error (erreurs → PrimApiError)
+    ├── models/          interfaces des réponses, un fichier par domaine (+ erreur commune)
+    ├── config/          URLs PRIM, jeton, nom de l'appli, liens de navigation
+    ├── layout/          header, footer, bottom-nav (barre d'onglets sur mobile)
+    ├── pages/           un composant par route, chargé à la demande (lazy loading)
+    │                    accueil, lieux, itineraire, horaires, trafic, favoris, page404, dev-api
+    └── components/      composants réutilisables (à venir : champ de recherche de lieux…)
+```
+
+Règles de dépendances :
+
+- `models/` et `config/` n'importent rien ;
+- `services/` utilise `models/` et `config/`, jamais un composant ;
+- `components/` peut injecter un service ;
+- `pages/` assemble `components/`, `services/` et `models/`.
+
+Flux des données : `page → service (HttpClient) → intercepteurs → API PRIM`. Une page n'appelle jamais `HttpClient` directement, et les erreurs HTTP arrivent sous la forme unique `PrimApiError`.
+
+| URL | Page |
+|---|---|
+| `/accueil` | accueil (`/` y redirige) |
+| `/lieux` · `/itineraire` | recherche de lieux · calcul d'itinéraire |
+| `/horaires` · `/horaires/:stopAreaId` | prochains passages d'un arrêt |
+| `/trafic` · `/trafic/:lineId` | infos trafic |
+| `/favoris` | favoris |
+| `/dev` | bac à sable pour tester les API (mode développement uniquement, à retirer avant le rendu) |
+| autre URL | `page404` |
+
+> Après une modification de `angular.json`, relancer `npm start` : le serveur de développement ne la relit pas.
 
 ## Organisation
 

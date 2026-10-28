@@ -1,0 +1,10 @@
+// Coquille : l'en-tête et le pied de page restent en place, seule la zone `.content` change.
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.content {
+  flex: 1;
+}
