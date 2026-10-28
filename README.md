@@ -112,7 +112,8 @@ src/
     ├── layout/          header, footer, bottom-nav (barre d'onglets sur mobile)
     ├── pages/           un composant par route, chargé à la demande (lazy loading)
     │                    accueil, lieux, itineraire, horaires, trafic, favoris, page404, dev-api
-    └── components/      composants réutilisables (à venir : champ de recherche de lieux…)
+    └── components/      composants réutilisables
+                         lieux-recherche (champ avec autocomplétion : départ, arrivée, favoris…)
 ```
 
 Règles de dépendances :

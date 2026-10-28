@@ -1,0 +1,94 @@
+@use 'styles/variables' as *;
+@use 'styles/mixins' as *;
+
+.lieux-recherche {
+  display: block;
+}
+
+.label {
+  display: block;
+  margin-bottom: $space-1;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.field {
+  position: relative;
+
+  input {
+    width: 100%;
+    padding-right: 2.5rem; // place pour l'indicateur de chargement
+  }
+}
+
+.spinner {
+  position: absolute;
+  top: 50%;
+  right: $space-3;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-top: -0.55rem;
+  border: 2px solid $border;
+  border-top-color: $primary;
+  border-radius: 50%;
+  animation: tourne 0.7s linear infinite;
+}
+
+@keyframes tourne {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.options {
+  @include card;
+  position: absolute;
+  top: calc(100% + #{$space-1});
+  right: 0;
+  left: 0;
+  z-index: 20;
+  max-height: 18rem;
+  margin: 0;
+  padding: $space-1;
+  overflow-y: auto;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $space-3;
+    padding: $space-2 $space-3;
+    border-radius: $radius;
+    cursor: pointer;
+
+    &.active {
+      background: $primary-soft;
+    }
+  }
+
+  .name {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .type {
+    flex-shrink: 0;
+    padding: 0.05rem $space-2;
+    border-radius: 1rem;
+    background: $bg;
+    color: $muted;
+    font-size: 0.75rem;
+  }
+}
+
+.status {
+  min-height: 1.5em;
+  margin: $space-2 0 0;
+  color: $muted;
+  font-size: 0.85rem;
+
+  &.error {
+    color: $danger;
+  }
+}

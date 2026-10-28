@@ -1,7 +1,17 @@
 <section class="page">
   <h1>Lieux</h1>
   <p class="lead">Recherche d'adresses, d'arrêts et de gares en Île-de-France.</p>
-  <div class="card">
-    <p><strong>En construction.</strong> Cet écran utilisera <code>LieuxApi</code> (API Calculateur, <code>/places</code>).</p>
-  </div>
+
+  <app-lieux-recherche
+    label="Rechercher un lieu ou un arrêt"
+    (placeSelected)="onPlaceSelected($event)"
+  />
+
+  @if (selected(); as place) {
+    <article class="card result" aria-live="polite">
+      <p class="type">{{ typeLabel(place.embedded_type) }}</p>
+      <h2>{{ place.name }}</h2>
+      <p>Identifiant Navitia : <code>{{ place.id }}</code></p>
+    </article>
+  }
 </section>
