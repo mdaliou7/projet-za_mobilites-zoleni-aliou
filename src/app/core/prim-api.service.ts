@@ -7,12 +7,24 @@ import {
   PlacesResponse,
   StopMonitoringResponse,
 } from './prim.models';
-import { PRIM_BASE_URL, PRIM_NAVITIA_URL } from './prim.config';
+import { PRIM_BASE_URL, PRIM_LINE_REPORTS_URL, PRIM_NAVITIA_URL } from './prim.config';
 
 export interface JourneyOptions {
   /** Format Navitia : AAAAMMJJTHHMMSS. Par défaut : maintenant. */
   datetime?: string;
   count?: number;
+}
+
+export interface TrafficOptions {
+  /** Nombre de lignes par page (max 100). Défaut : 5. */
+  count?: number;
+  startPage?: number;
+  /** Mode de transport, ex. `physical_mode:Metro` (identifiant confirmé par la doc PRIM). */
+  physicalMode?: string;
+  /** Une ligne précise, ex. `line:IDFM:C01727` (RER C). */
+  lineId?: string;
+  /** Modes à exclure, ex. `['physical_mode:Bus']`. */
+  excludeModes?: string[];
 }
 
 /**
@@ -44,10 +56,33 @@ export class PrimApiService {
     return this.http.get<JourneysResponse>(`${PRIM_NAVITIA_URL}/journeys`, { params });
   }
 
-  /** Messages Info Trafic : perturbations en cours et à venir. Max 100 résultats par page. */
-  getTrafficReports(count = 5): Observable<LineReportsResponse> {
-    const params = new HttpParams().set('count', count);
-    return this.http.get<LineReportsResponse>(`${PRIM_NAVITIA_URL}/line_reports`, { params });
+  /**
+   * Messages Info Trafic : perturbations en cours et à venir. Max 100 lignes par page.
+   * Sans filtre, l'API renvoie les lignes dans l'ordre de ses identifiants (surtout des bus) :
+   * pour le métro, le RER ou le tramway, il faut filtrer par mode (`physicalMode`).
+   */
+  getTrafficReports(options: TrafficOptions = {}): Observable<LineReportsResponse> {
+    let params = new HttpParams().set('count', options.count ?? 5);
+    if (options.startPage) {
+      params = params.set('start_page', options.startPage);
+    }
+    for (const mode of options.excludeModes ?? []) {
+      params = params.append('forbidden_uris[]', mode);
+    }
+    return this.http.get<LineReportsResponse>(`${this.trafficBaseUrl(options)}/line_reports`, {
+      params,
+    });
+  }
+
+  /** Les filtres par mode ou par ligne s'insèrent dans le chemin : `…/{collection}/{id}/line_reports`. */
+  private trafficBaseUrl({ physicalMode, lineId }: TrafficOptions): string {
+    if (physicalMode) {
+      return `${PRIM_LINE_REPORTS_URL}/physical_modes/${encodeURIComponent(physicalMode)}`;
+    }
+    if (lineId) {
+      return `${PRIM_LINE_REPORTS_URL}/lines/${encodeURIComponent(lineId)}`;
+    }
+    return PRIM_LINE_REPORTS_URL;
   }
 
   /**

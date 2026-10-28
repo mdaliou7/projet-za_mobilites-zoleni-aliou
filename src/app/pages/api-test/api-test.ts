@@ -3,8 +3,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Observable, finalize } from 'rxjs';
-import { PrimApiService } from '../../core/prim-api.service';
+import { PrimApiService, TrafficOptions } from '../../core/prim-api.service';
 import { PrimUsageService } from '../../core/prim-usage.service';
+import { isElevatorOutage } from '../../core/prim-traffic';
 
 interface CallLog {
   id: number;
@@ -34,11 +35,14 @@ export class ApiTest {
   // Châtelet → Gare de Lyon, en `longitude;latitude`.
   protected readonly journeyFrom = signal('2.3470;48.8584');
   protected readonly journeyTo = signal('2.3736;48.8443');
+  // Mode des infos trafic : un id Navitia, `sans-bus` ou `tout` (5 premières lignes, surtout des bus).
+  protected readonly trafficMode = signal('physical_mode:Metro');
   // Zone de correspondance Châtelet.
   protected readonly monitoringRef = signal('STIF:StopArea:SP:71264:');
 
   protected readonly logs = signal<CallLog[]>([]);
   protected readonly loading = signal(false);
+  protected readonly copyStatus = signal<{ id: number; status: 'copied' | 'failed' } | null>(null);
   private nextId = 1;
 
   protected searchPlaces(): void {
@@ -65,9 +69,26 @@ export class ApiTest {
   }
 
   protected getTraffic(): void {
-    this.run('Infos trafic', this.api.getTrafficReports(), (r) => {
-      const lines = (r.line_reports ?? []).map((l) => l.line.code ?? l.line.name);
-      return `${r.disruptions?.length ?? 0} perturbation(s) · lignes : ${lines.join(', ') || 'aucune'}`;
+    const mode = this.trafficMode();
+    const options: TrafficOptions =
+      mode === 'tout'
+        ? { count: 5 }
+        : mode === 'sans-bus'
+          ? { count: 20, excludeModes: ['physical_mode:Bus'] }
+          : { count: 20, physicalMode: mode };
+
+    this.run(`Infos trafic (${mode})`, this.api.getTrafficReports(options), (r) => {
+      const lines = r.line_reports ?? [];
+      const disruptions = r.disruptions ?? [];
+      const total = r.pagination?.total_result;
+      const active = disruptions.filter((d) => d.status === 'active').length;
+      const lifts = disruptions.filter(isElevatorOutage).length;
+      const modes = new Set(lines.flatMap((l) => (l.line.physical_modes ?? []).map((m) => m.id)));
+      return (
+        `${lines.length} ligne(s)${total ? ` sur ${total}` : ''} : ${lines.map((l) => l.line.code ?? l.line.name).join(', ') || 'aucune'}` +
+        ` · modes : ${[...modes].join(', ') || '?'}` +
+        ` · ${disruptions.length} perturbation(s) sur la page (${active} en cours, ${lifts} pannes d'ascenseur)`
+      );
     });
   }
 
@@ -84,6 +105,18 @@ export class ApiTest {
 
   protected clearLogs(): void {
     this.logs.set([]);
+  }
+
+  /** Copie la réponse brute (JSON indenté) dans le presse-papiers. */
+  protected async copyRaw(log: CallLog): Promise<void> {
+    let status: 'copied' | 'failed' = 'copied';
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(log.raw, null, 2));
+    } catch {
+      status = 'failed';
+    }
+    this.copyStatus.set({ id: log.id, status });
+    setTimeout(() => this.copyStatus.set(null), 1800);
   }
 
   private run<T>(label: string, request$: Observable<T>, summarize: (response: T) => string): void {

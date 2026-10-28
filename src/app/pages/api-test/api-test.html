@@ -31,6 +31,16 @@
 
   <section class="panel">
     <h2>Infos trafic</h2>
+    <label>
+      Mode
+      <select [(ngModel)]="trafficMode">
+        <option value="physical_mode:Metro">Métro</option>
+        <option value="physical_mode:Tramway">Tramway (id à confirmer)</option>
+        <option value="physical_mode:RapidTransit">RER (id à confirmer)</option>
+        <option value="sans-bus">Tout sauf les bus (20 lignes)</option>
+        <option value="tout">Sans filtre (5 lignes, surtout des bus)</option>
+      </select>
+    </label>
     <button type="button" (click)="getTraffic()" [disabled]="loading()">Voir les perturbations</button>
   </section>
 
@@ -61,7 +71,22 @@
         <p>{{ log.summary }}</p>
         <details>
           <summary>Réponse brute</summary>
-          <pre>{{ log.raw | json }}</pre>
+          <div class="raw">
+            <button type="button" class="secondary copy" (click)="copyRaw(log)">
+              @switch (copyStatus()?.id === log.id ? copyStatus()?.status : null) {
+                @case ('copied') {
+                  Copié ✓
+                }
+                @case ('failed') {
+                  Échec : sélectionne le texte à la main
+                }
+                @default {
+                  Copier le JSON
+                }
+              }
+            </button>
+            <pre>{{ log.raw | json }}</pre>
+          </div>
         </details>
       </article>
     } @empty {

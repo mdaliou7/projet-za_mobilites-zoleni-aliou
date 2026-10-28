@@ -35,7 +35,8 @@
   }
 }
 
-input {
+input,
+select {
   padding: 0.45rem 0.6rem;
   border: 1px solid #b8c1cc;
   border-radius: 0.35rem;
@@ -95,14 +96,28 @@ button {
     margin: 0.4rem 0;
   }
 
+  .raw {
+    position: relative;
+  }
+
+  .copy {
+    position: absolute;
+    top: 0.5rem;
+    right: 1.4rem; // laisse la place à la barre de défilement du bloc
+    padding: 0.25rem 0.7rem;
+    font-size: 0.8rem;
+  }
+
   pre {
     max-height: 20rem;
     overflow: auto;
+    margin: 0.5rem 0 0;
     padding: 0.75rem;
     border-radius: 0.35rem;
     background: #10151c;
     color: #d6e2f0;
     font-size: 0.8rem;
+    user-select: text;
   }
 }
 

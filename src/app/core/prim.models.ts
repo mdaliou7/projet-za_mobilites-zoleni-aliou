@@ -51,19 +51,73 @@ export interface JourneysResponse {
 
 // --- Calculateur (Navitia) : /line_reports ------------------------------------------------
 
+/** Pagination commune aux réponses Navitia (`start_page` et `count` en paramètres d'appel). */
+export interface Pagination {
+  total_result: number;
+  start_page: number;
+  items_per_page: number;
+  items_on_page: number;
+}
+
+/** Objet touché par une perturbation : une ligne, une zone d'arrêts ou un point d'arrêt. */
+export interface PtObject {
+  /** Ex. `line:IDFM:C00298`, `stop_area:IDFM:65063`, `stop_point:IDFM:27435`. */
+  id: string;
+  name: string;
+  embedded_type: 'line' | 'stop_area' | 'stop_point' | string;
+}
+
+export interface DisruptionMessage {
+  /** HTML pour le canal `moteur` : à afficher via `[innerHTML]` (Angular le nettoie). */
+  text: string;
+  /** Canaux vus : `titre`, `moteur`, `cbiv`, `notification`, `email ascenseur`, `sms ascenseurs`… */
+  channel?: { name?: string; types?: string[] };
+}
+
 export interface Disruption {
   id: string;
-  status?: string;
-  severity?: { name?: string; effect?: string };
-  messages?: { text: string; channel?: { name?: string } }[];
+  /** `active`, `future` ou `past`. */
+  status: 'active' | 'future' | 'past' | string;
+  severity?: {
+    /** Ex. `bloquante`, `perturbée`. */
+    name?: string;
+    /** `NO_SERVICE`, `SIGNIFICANT_DELAYS`, `OTHER_EFFECT`… */
+    effect?: string;
+    color?: string;
+    priority?: number;
+  };
+  /** Ex. `Incidents`. */
+  category?: string;
+  /** Ex. `perturbation`, `travaux`. */
+  cause?: string;
+  /** Dates au format Navitia AAAAMMJJTHHMMSS (heure de Paris). */
+  application_periods?: { begin: string; end: string }[];
+  messages?: DisruptionMessage[];
+  impacted_objects?: { pt_object: PtObject }[];
 }
 
 export interface LineReport {
-  line: { id: string; name: string; code?: string; color?: string };
+  line: {
+    id: string;
+    name: string;
+    code?: string;
+    color?: string;
+    text_color?: string;
+    commercial_mode?: { name?: string };
+    /** Ex. `physical_mode:Metro` : sert aussi à filtrer (`physicalMode`). */
+    physical_modes?: { id: string; name?: string }[];
+    network?: { name?: string };
+  };
+  pt_objects?: PtObject[];
 }
 
 export interface LineReportsResponse {
+  pagination?: Pagination;
   line_reports?: LineReport[];
+  /**
+   * Toutes les perturbations de la page, **pas seulement celles des lignes listées** : la
+   * plupart touchent des arrêts (`stop_area`, `stop_point`). Voir `prim-traffic.ts`.
+   */
   disruptions?: Disruption[];
 }
 
