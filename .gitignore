@@ -8,6 +8,8 @@
 
 # Secrets (clé API PRIM)
 .env
+# Généré depuis .env par scripts/generate-env.mjs (contient la clé)
+/src/environments/environment.ts
 
 # Node
 /node_modules
