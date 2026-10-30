@@ -1,0 +1,65 @@
+<div class="lieux-recherche">
+  <label class="label" [for]="inputId">{{ label() }}</label>
+
+  <div class="field">
+    <input
+      [id]="inputId"
+      type="text"
+      role="combobox"
+      autocomplete="off"
+      spellcheck="false"
+      aria-autocomplete="list"
+      [attr.aria-expanded]="listVisible()"
+      [attr.aria-controls]="listVisible() ? listId : null"
+      [attr.aria-activedescendant]="activeOptionId()"
+      [attr.aria-describedby]="statusId"
+      [formControl]="query"
+      [placeholder]="placeholder()"
+      (keydown)="onKeydown($event)"
+      (focus)="reopen()"
+      (blur)="close()"
+    />
+    @if (status() === 'loading') {
+      <span class="spinner" aria-hidden="true"></span>
+    }
+
+    @if (listVisible()) {
+      <ul class="options" role="listbox" [id]="listId" [attr.aria-label]="label()">
+        @for (place of places(); track place.id; let i = $index) {
+          <li
+            role="option"
+            [id]="optionId(i)"
+            [class.active]="i === activeIndex()"
+            [attr.aria-selected]="i === activeIndex()"
+            (mousedown)="select(place, $event)"
+            (mouseenter)="activeIndex.set(i)"
+          >
+            <span class="name">{{ place.name }}</span>
+            <span class="type">{{ typeLabel(place.embedded_type) }}</span>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+
+  <p class="status" [id]="statusId" aria-live="polite" [class.error]="status() === 'error'">
+    @switch (status()) {
+      @case ('loading') {
+        Recherche en cours…
+      }
+      @case ('error') {
+        {{ errorMessage() }}
+      }
+      @case ('done') {
+        @if (places().length === 0) {
+          Aucun lieu trouvé pour « {{ lastQuery() }} ».
+        } @else {
+          {{ places().length }} suggestion(s) : utilise les flèches du clavier ou la souris pour choisir.
+        }
+      }
+      @default {
+        Tape au moins {{ minChars }} caractères.
+      }
+    }
+  </p>
+</div>

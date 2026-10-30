@@ -11,3 +11,15 @@ export interface Place {
 export interface PlacesResponse {
   places?: Place[];
 }
+
+const PLACE_TYPE_LABELS: Record<string, string> = {
+  stop_area: 'Arrêt',
+  address: 'Adresse',
+  poi: 'Lieu',
+  administrative_region: 'Commune',
+};
+
+/** Libellé français d'un type de lieu Navitia, pour l'affichage. */
+export function placeTypeLabel(embeddedType: string): string {
+  return PLACE_TYPE_LABELS[embeddedType] ?? 'Lieu';
+}
