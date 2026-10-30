@@ -1,0 +1,60 @@
+@use 'styles/variables' as *;
+
+// Les styles de base de Leaflet (contrôles, attribution, fenêtre d'info…) sont chargés par angular.json :
+// ils pèsent plus que le plafond des styles d'un composant. Ici, seulement l'apparence propre au projet.
+// Pas d'encapsulation (voir le composant) : tout est préfixé pour ne pas déborder.
+app-carte-lieu {
+  display: block;
+
+  .carte-lieu__carte {
+    height: 20rem;
+    border: 1px solid $border;
+    border-radius: $radius-lg;
+    // Contient les couches de Leaflet (z-index jusqu'à 1000) pour qu'elles ne passent pas
+    // par-dessus l'en-tête fixe, la barre d'onglets ou la liste de suggestions.
+    isolation: isolate;
+    overflow: hidden;
+    background: $bg;
+  }
+
+  // Marqueur : une goutte aux couleurs du site, dessinée en CSS.
+  .carte-pin span {
+    position: absolute;
+    top: 0;
+    left: 3px;
+    width: 24px;
+    height: 24px;
+    border: 3px solid $surface;
+    border-radius: 50% 50% 50% 0;
+    background: $primary;
+    box-shadow: 0 2px 6px rgb(16 24 40 / 35%);
+    transform: rotate(-45deg);
+    transform-origin: 50% 100%;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: $surface;
+    }
+  }
+
+  .carte-pin {
+    background: transparent;
+    border: 0;
+  }
+
+  .leaflet-container {
+    font-family: $font-family;
+  }
+}
+
+@media (max-width: #{$bp-mobile - 1px}) {
+  app-carte-lieu .carte-lieu__carte {
+    height: 16rem;
+  }
+}

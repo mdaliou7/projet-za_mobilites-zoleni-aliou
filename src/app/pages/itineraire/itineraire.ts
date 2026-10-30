@@ -193,6 +193,12 @@ export class Itineraire {
     datetime: string | undefined,
   ): void {
     if (!from || !to) {
+      // URL incomplète (ex. « Choisir mon départ » depuis la page Lieux : seule l'arrivée est connue) :
+      // on préremplit ce qu'on a, sans lancer de recherche.
+      this.form.patchValue({
+        ...(from ? { from: placeFromUrl(from, fromLabel) } : {}),
+        ...(to ? { to: placeFromUrl(to, toLabel) } : {}),
+      });
       this.status.set('idle');
       this.journeys.set([]);
       this.lastSearch.set(null);

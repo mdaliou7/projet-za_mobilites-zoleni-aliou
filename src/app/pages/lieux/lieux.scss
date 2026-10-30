@@ -1,4 +1,5 @@
 @use 'styles/variables' as *;
+@use 'styles/mixins' as *;
 
 // Les styles communs aux pages (.page, .lead, .card…) sont dans src/styles.scss.
 app-lieux-recherche {
@@ -6,21 +7,28 @@ app-lieux-recherche {
   max-width: 36rem;
 }
 
-.result {
-  max-width: 36rem;
+// Fiche du lieu à gauche, carte à droite ; l'une sous l'autre sur mobile.
+.detail {
+  display: grid;
+  grid-template-columns: minmax(16rem, 22rem) 1fr;
+  gap: $space-5;
+  align-items: start;
   margin-top: $space-5;
 
-  h2 {
-    margin: $space-1 0 $space-2;
-    font-size: 1.2rem;
+  @include mobile {
+    grid-template-columns: 1fr;
   }
+}
 
-  p {
-    margin: 0;
+.result {
+  h2 {
+    margin: $space-1 0 $space-4;
+    font-size: 1.2rem;
   }
 
   .type {
     display: inline-block;
+    margin: 0;
     padding: 0.05rem $space-2;
     border-radius: 1rem;
     background: $primary-soft;
@@ -28,4 +36,25 @@ app-lieux-recherche {
     font-size: 0.75rem;
     font-weight: 600;
   }
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+}
+
+.status {
+  margin: $space-3 0 0;
+  color: $muted;
+  font-size: 0.9rem;
+
+  &.error {
+    color: $danger;
+  }
+}
+
+.no-map {
+  margin: 0;
+  color: $muted;
 }

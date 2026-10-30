@@ -23,6 +23,7 @@ Notation : projet coef 2, démo coef 1. Le sujet préfère **peu de fonctionnali
 - [x] Architecture : `services/`, `interceptors/`, `models/`, `config/`, `layout/`, `pages/` (lazy loading), `page404`, SCSS maison
 - [x] Intercepteurs : clé `apiKey` + erreurs en `PrimApiError`
 - [x] **Recherche de lieux** avec autocomplétion (`components/lieux-recherche`, cache dans `LieuxApi`) — #17
+- [x] **Page Lieux : carte et « Y aller »** : carte Leaflet / OpenStreetMap du lieu choisi (`components/carte-lieu`), bouton « Y aller depuis ma position » (géolocalisation avec accord) qui ouvre l'itinéraire déjà calculé, et « Choisir mon départ » *(branche `feature/lieux-carte`, empilée sur l'itinéraire)*
 - [x] Bac à sable `/dev` : lieux, itinéraire, trafic, prochains passages répondent
 - [x] Docs : `NOTES.md`, `PRIM-API-infos.md`, note Obsidian
 - [x] **Itinéraire** (`/itineraire`, `components/trajet-detail`, `components/line-badge`) avec empreinte CO₂ — #19 *(branche `feature/itineraire`, pas encore mergée)*
@@ -35,7 +36,7 @@ Chacune doit **faire un appel API** et être **validée par le prof**.
 
 | # | Fonctionnalité | API | Qui | État |
 |---|---|---|---|---|
-| 1 | Recherche de lieux | Calculateur `/places` | Z | ✅ fait |
+| 1 | Recherche de lieux (carte, « Y aller ») | Calculateur `/places` | Z | ✅ fait |
 | 2 | Calcul d'itinéraire | Calculateur `/journeys` | Z | ✅ fait (à merger) |
 | 3 | Prochains passages | Prochains passages `/stop-monitoring` | Z *(proposé)* | à faire |
 | 4 | Infos trafic | Messages Info Trafic `/line_reports` | **A** (#16) | en cours |
@@ -123,6 +124,10 @@ IDFM et Citymapper font déjà itinéraires et horaires. On se démarque par « 
 | Itinéraire | « Aucun trajet » arrive en **erreur HTTP 404** (`error.id = no_solution`) : `ItineraireApi` en fait une liste vide. Les étapes ont 5 types : `street_network`, `crow_fly` (marche depuis/vers un arrêt), `public_transport`, `transfer`, `waiting` |
 | Heures | Les heures d'un trajet sont en heure de Paris : on les affiche en découpant le texte, **sans conversion** de fuseau |
 | Formulaires | Un `FormGroup` n'est pas un signal : dériver l'affichage d'un signal (`toSignal(form.valueChanges)`), sinon l'écran ne se met à jour qu'avec zone.js |
+| Coordonnées | `/places` renvoie `lat` et `lon` en **texte**, dans `place[type].coord` (arrêt, lieu d'intérêt, adresse). `placeCoordinates()` les lit |
+| Carte | Leaflet + fonds **OpenStreetMap** : la mention « © OpenStreetMap » est obligatoire (déjà affichée), usage léger seulement. Leaflet est chargé à la demande (fichier séparé) ; son CSS est dans `angular.json` (trop lourd pour un composant) |
+| Localisation | La position n'est demandée qu'au clic sur « Y aller », avec l'accord du navigateur (HTTPS ou `localhost` obligatoire). Dans l'URL, elle est **arrondie à 4 décimales** (≈ 11 m). Refus géré : message + « Choisir mon départ » |
+| Style IDFM | La carte du réseau d'IDFM n'est pas disponible comme fond de carte public : on utilise OpenStreetMap. Piste pour plus tard : tracer les lignes avec le jeu de données « Tracés des lignes » |
 
 ## Démo du 02/12 (15 minutes, sans code)
 
