@@ -12,7 +12,7 @@ Chaque fonctionnalité repose sur un appel d'API, comme l'exige le sujet.
 
 | # | Fonctionnalité | API PRIM |
 |---|---|---|
-| 1 | **Recherche de lieux** : autocomplétion d'adresses, d'arrêts et de gares | Calculateur IDFM v2 (`/places`) |
+| 1 | **Recherche de lieux** : autocomplétion d'adresses, d'arrêts et de gares, carte du lieu et bouton « Y aller depuis ma position » | Calculateur IDFM v2 (`/places`) |
 | 2 | **Calcul d'itinéraire** : départ → arrivée, date et heure, étapes, durée, correspondances | Calculateur IDFM v2 (`/journeys`) |
 | 3 | **Prochains passages** : horaires en temps réel sur un arrêt | Prochains passages, requête unitaire (SIRI Lite) |
 | 4 | **Infos trafic** : perturbations par ligne ou par mode | Messages Info Trafic v2 (`/line_reports`) |
@@ -25,6 +25,7 @@ Chaque fonctionnalité repose sur un appel d'API, comme l'exige le sujet.
 - [Angular](https://angular.dev) 22 (composants, routing, services, `HttpClient`, formulaires réactifs, signals)
 - [RxJS](https://rxjs.dev) (`debounceTime`, `switchMap`, `shareReplay`, rafraîchissement périodique)
 - SCSS pur, fait maison (variables et mixins dans `src/styles/`), sans Bootstrap ni Angular Material : aucun template prêt à l'emploi
+- [Leaflet](https://leafletjs.com) (licence BSD-2) pour la carte, avec les fonds de carte [OpenStreetMap](https://www.openstreetmap.org/copyright) (© les contributeurs d'OpenStreetMap)
 - [Vitest](https://vitest.dev) + jsdom pour les tests unitaires
 - Prettier pour le formatage
 
@@ -105,7 +106,8 @@ src/
 └── app/
     ├── app.ts · app.config.ts · app.routes.ts    coquille, configuration, routes
     ├── services/        TOUS les services (@Service), un fichier par domaine :
-    │                    lieux-api, itineraire-api, horaires-api, trafic-api, prim-usage
+    │                    lieux-api, itineraire-api, horaires-api, trafic-api, prim-usage,
+    │                    geolocalisation (position de l'utilisateur, avec son accord)
     ├── interceptors/    prim-api-key (ajoute l'en-tête apiKey), prim-error (erreurs → PrimApiError)
     ├── models/          interfaces des réponses, un fichier par domaine (+ erreur commune)
     ├── config/          URLs PRIM, jeton, nom de l'appli, liens de navigation
@@ -115,6 +117,7 @@ src/
     └── components/      composants réutilisables
                          lieux-recherche (champ avec autocomplétion : départ, arrivée, favoris…)
                          trajet-detail (un trajet : résumé, étapes, CO₂) · line-badge (pastille de ligne)
+                         carte-lieu (carte Leaflet / OpenStreetMap d'un lieu, chargée à la demande)
 ```
 
 Règles de dépendances :
@@ -129,7 +132,7 @@ Flux des données : `page → service (HttpClient) → intercepteurs → API PRI
 | URL | Page |
 |---|---|
 | `/accueil` | accueil (`/` y redirige) |
-| `/lieux` · `/itineraire` | recherche de lieux · calcul d'itinéraire (`?from=…&to=…&datetime=…`, partageable par lien) |
+| `/lieux` · `/itineraire` | recherche de lieux, carte et « Y aller » · calcul d'itinéraire (`?from=…&to=…&datetime=…`, partageable par lien) |
 | `/horaires` · `/horaires/:stopAreaId` | prochains passages d'un arrêt |
 | `/trafic` · `/trafic/:lineId` | infos trafic |
 | `/favoris` | favoris |
