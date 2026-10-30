@@ -137,6 +137,38 @@ describe('Itineraire', () => {
       expect((t.cards()[1].querySelector('details') as HTMLDetailsElement).open).toBe(false);
     });
 
+    it("préremplit l'arrivée, sans chercher, quand l'URL ne contient que l'arrivée", async () => {
+      const t = await setup(undefined, url({ to: 'stop_area:IDFM:71264', toLabel: 'Châtelet (Paris)' }));
+
+      expect(t.getJourneys).not.toHaveBeenCalled();
+      expect(t.form.getRawValue().from).toBeNull();
+      expect(t.form.getRawValue().to?.name).toBe('Châtelet (Paris)');
+      const champs = [...t.root.querySelectorAll<HTMLInputElement>('app-lieux-recherche input')];
+      expect(champs.map((c) => c.value)).toEqual(['', 'Châtelet (Paris)']);
+      expect(t.text('.hint')).toContain('Choisis le départ');
+      expect(t.cards().length).toBe(0);
+    });
+
+    it("lance la recherche dès que le départ est choisi après « Choisir mon départ »", async () => {
+      const t = await setup(undefined, url({ to: 'stop_area:IDFM:71264', toLabel: 'Châtelet (Paris)' }));
+      t.form.patchValue({ from: { id: 'stop_area:IDFM:71582', name: 'Parc de Bercy (Paris)', embedded_type: 'stop_area' } });
+      t.harness.detectChanges();
+
+      await t.submit();
+
+      expect(t.getJourneys).toHaveBeenCalledWith('stop_area:IDFM:71582', 'stop_area:IDFM:71264', { datetime: undefined });
+    });
+
+    it("ouvre un trajet depuis « Ma position » (coordonnées) et le calcule", async () => {
+      const t = await setup(
+        undefined,
+        url({ from: '2.3522;48.8566', fromLabel: 'Ma position', to: 'stop_area:IDFM:71264', toLabel: 'Châtelet (Paris)' }),
+      );
+
+      expect(t.getJourneys).toHaveBeenCalledWith('2.3522;48.8566', 'stop_area:IDFM:71264', { datetime: undefined });
+      expect(t.text('.results h2')).toBe('2 trajet(s) : Ma position → Châtelet (Paris)');
+    });
+
     it("part maintenant quand l'URL ne contient pas d'heure", async () => {
       const t = await setup(undefined, url({ from: 'a', fromLabel: 'A', to: 'b', toLabel: 'B' }));
 

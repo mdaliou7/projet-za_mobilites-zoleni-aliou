@@ -8,10 +8,31 @@
   />
 
   @if (selected(); as place) {
-    <article class="card result" aria-live="polite">
-      <p class="type">{{ typeLabel(place.embedded_type) }}</p>
-      <h2>{{ place.name }}</h2>
-      <p>Identifiant Navitia : <code>{{ place.id }}</code></p>
-    </article>
+    <div class="detail">
+      <article class="card result" aria-live="polite">
+        <p class="type">{{ typeLabel(place.embedded_type) }}</p>
+        <h2>{{ place.name }}</h2>
+
+        <div class="actions">
+          <button type="button" class="btn" (click)="goHere()" [disabled]="locating()">
+            {{ locating() ? 'Localisation en cours…' : 'Y aller depuis ma position' }}
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="chooseDeparture()">Choisir mon départ</button>
+        </div>
+
+        @if (locating()) {
+          <p class="status">Autorise la localisation dans la fenêtre de ton navigateur.</p>
+        }
+        @if (locationError()) {
+          <p class="status error" role="alert">{{ locationError() }}</p>
+        }
+      </article>
+
+      @if (point(); as point) {
+        <app-carte-lieu [lat]="point.lat" [lon]="point.lon" [label]="place.name" />
+      } @else {
+        <p class="no-map">La position de ce lieu est inconnue : impossible de l'afficher sur une carte.</p>
+      }
+    </div>
   }
 </section>
