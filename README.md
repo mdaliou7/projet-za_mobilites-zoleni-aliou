@@ -18,13 +18,13 @@ Chaque fonctionnalité repose sur un appel d'API, comme l'exige le sujet.
 | 4 | **Infos trafic** : perturbations par ligne ou par mode | Messages Info Trafic v2 (`/line_reports`) |
 | 5 | **Favoris** : lieux, arrêts et trajets enregistrés, rafraîchis via l'API | Les trois API ci-dessus |
 
-**Angle distinctif** : plutôt qu'un calculateur de plus, l'application vise à « se déplacer mieux » en enrichissant ces fonctionnalités avec des jeux de données PRIM (accessibilité et état des ascenseurs, empreinte CO₂ d'un trajet, positionnement dans la rame). Ces pistes sont détaillées dans [NOTES.md](NOTES.md).
+**Angle distinctif** : plutôt qu'un calculateur de plus, l'application vise à « se déplacer mieux » en enrichissant ces fonctionnalités avec des jeux de données PRIM (accessibilité et état des ascenseurs, empreinte CO₂ d'un trajet, positionnement dans la rame). Ces pistes sont détaillées dans [docs/NOTES.md](docs/NOTES.md).
 
 ## Stack technique
 
 - [Angular](https://angular.dev) 22 (composants, routing, services, `HttpClient`, formulaires réactifs, signals)
 - [RxJS](https://rxjs.dev) (`debounceTime`, `switchMap`, `shareReplay`, rafraîchissement périodique)
-- SCSS, avec Bootstrap ou Angular Material pour les composants (mise en page et identité propres, aucun template prêt à l'emploi)
+- SCSS pur, fait maison (variables et mixins dans `src/styles/`), sans Bootstrap ni Angular Material : aucun template prêt à l'emploi
 - [Vitest](https://vitest.dev) + jsdom pour les tests unitaires
 - Prettier pour le formatage
 
@@ -81,25 +81,68 @@ Ouvrir ensuite [http://localhost:4200](http://localhost:4200). L'application se 
 - **Identifiants** : le Calculateur utilise des identifiants `IDFM:xxxxx`, les Prochains passages des identifiants `STIF:StopArea:SP:xxxxx:`. Ils sont différents. Pour les favoris, on stocke la zone d'arrêts (`stop_area`) plutôt que le point d'arrêt, dont l'identifiant change chaque jour pour les bus.
 - **Temps réel** : disponible sur une partie seulement du réseau, voir le jeu de données « Périmètre des données temps réel disponibles ».
 
-Le détail de ces vérifications se trouve dans [NOTES.md](NOTES.md) et [PRIM-API-infos.md](PRIM-API-infos.md).
+Le détail de ces vérifications se trouve dans [docs/NOTES.md](docs/NOTES.md) et [docs/PRIM-API-infos.md](docs/PRIM-API-infos.md).
 
 ## Structure du dépôt
 
 ```
 .
-├── src/                 Code de l'application Angular
+├── src/                 Code de l'application Angular (détail ci-dessous)
 ├── public/              Fichiers statiques
-├── NOTES.md             Cadrage, quotas, CORS, planning, démo
-├── PRIM-API-infos.md    Catalogue des API et jeux de données PRIM
-├── Projet.pdf           Sujet du projet
+├── scripts/             generate-env.mjs : génère environment.ts depuis .env
+├── docs/                NOTES.md (cadrage, quotas, CORS, démo), PRIM-API-infos.md (catalogue
+│                        des API et jeux de données PRIM), Projet.pdf (sujet)
+├── ROADMAP.md           Feuille de route : avancement, backlog, décisions, démo
 └── angular.json         Configuration Angular CLI
 ```
+
+## Architecture de l'application
+
+```
+src/
+├── styles.scss · styles/        SCSS maison : _variables.scss, _mixins.scss
+├── environments/                environment.ts (généré depuis .env, ignoré par git)
+└── app/
+    ├── app.ts · app.config.ts · app.routes.ts    coquille, configuration, routes
+    ├── services/        TOUS les services (@Service), un fichier par domaine :
+    │                    lieux-api, itineraire-api, horaires-api, trafic-api, prim-usage
+    ├── interceptors/    prim-api-key (ajoute l'en-tête apiKey), prim-error (erreurs → PrimApiError)
+    ├── models/          interfaces des réponses, un fichier par domaine (+ erreur commune)
+    ├── config/          URLs PRIM, jeton, nom de l'appli, liens de navigation
+    ├── layout/          header, footer, bottom-nav (barre d'onglets sur mobile)
+    ├── pages/           un composant par route, chargé à la demande (lazy loading)
+    │                    accueil, lieux, itineraire, horaires, trafic, favoris, page404, dev-api
+    └── components/      composants réutilisables
+                         lieux-recherche (champ avec autocomplétion : départ, arrivée, favoris…)
+```
+
+Règles de dépendances :
+
+- `models/` et `config/` n'importent rien ;
+- `services/` utilise `models/` et `config/`, jamais un composant ;
+- `components/` peut injecter un service ;
+- `pages/` assemble `components/`, `services/` et `models/`.
+
+Flux des données : `page → service (HttpClient) → intercepteurs → API PRIM`. Une page n'appelle jamais `HttpClient` directement, et les erreurs HTTP arrivent sous la forme unique `PrimApiError`.
+
+| URL | Page |
+|---|---|
+| `/accueil` | accueil (`/` y redirige) |
+| `/lieux` · `/itineraire` | recherche de lieux · calcul d'itinéraire |
+| `/horaires` · `/horaires/:stopAreaId` | prochains passages d'un arrêt |
+| `/trafic` · `/trafic/:lineId` | infos trafic |
+| `/favoris` | favoris |
+| `/dev` | bac à sable pour tester les API (mode développement uniquement, à retirer avant le rendu) |
+| autre URL | `page404` |
+
+> Après une modification de `angular.json`, relancer `npm start` : le serveur de développement ne la relit pas.
 
 ## Organisation
 
 - Dépôt et projet nommés `projet-nomduprojet-prénom1-prénom2`, comme demandé dans le sujet.
 - Travail sur des branches avec merge requests, aucun commit direct sur `main`.
 - **Rendu** : 01/12/2026 à 23h59. **Démo** : 02/12/2026, 15 minutes, sans code.
+- **Feuille de route** : [ROADMAP.md](ROADMAP.md) (avancement, backlog par fonctionnalité, décisions à prendre, démo).
 
 ## Licence
 

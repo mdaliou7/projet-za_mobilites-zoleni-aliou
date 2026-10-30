@@ -1,0 +1,10 @@
+<nav class="bottom-nav" aria-label="Navigation mobile">
+  @for (link of links; track link.path) {
+    <a [routerLink]="['/', link.path]" routerLinkActive="active">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path [attr.d]="link.icon" />
+      </svg>
+      <span>{{ link.label }}</span>
+    </a>
+  }
+</nav>

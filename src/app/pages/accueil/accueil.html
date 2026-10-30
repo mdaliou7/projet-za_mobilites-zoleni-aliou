@@ -1,0 +1,23 @@
+<section class="page">
+  <div class="hero">
+    <h1>Bienvenue sur {{ appName }}</h1>
+    <p class="lead">
+      Se déplacer en Île-de-France : cherche un lieu, calcule ton trajet, consulte les prochains
+      passages et suis le trafic.
+    </p>
+  </div>
+
+  <ul class="cards">
+    @for (link of links; track link.path) {
+      <li>
+        <a class="card" [routerLink]="['/', link.path]">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path [attr.d]="link.icon" />
+          </svg>
+          <h2>{{ link.label }}</h2>
+          <p>{{ link.description }}</p>
+        </a>
+      </li>
+    }
+  </ul>
+</section>

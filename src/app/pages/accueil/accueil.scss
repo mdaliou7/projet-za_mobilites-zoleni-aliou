@@ -1,0 +1,54 @@
+@use 'styles/variables' as *;
+@use 'styles/mixins' as *;
+
+.hero {
+  padding: $space-5 0 $space-4;
+
+  h1 {
+    font-size: 2rem;
+  }
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: $space-4;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: block;
+  height: 100%;
+  color: $text;
+  text-decoration: none;
+  transition:
+    border-color 0.15s,
+    transform 0.15s;
+
+  &:hover {
+    border-color: $primary;
+    transform: translateY(-2px);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+
+  svg {
+    width: 2rem;
+    height: 2rem;
+    fill: $primary;
+  }
+
+  h2 {
+    margin: $space-2 0 $space-1;
+    font-size: 1.1rem;
+  }
+
+  p {
+    margin: 0;
+    color: $muted;
+  }
+}

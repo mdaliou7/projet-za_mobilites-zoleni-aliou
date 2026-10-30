@@ -1,0 +1,58 @@
+@use 'styles/variables' as *;
+@use 'styles/mixins' as *;
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-4;
+  height: $header-height;
+  padding: 0 $space-4;
+  background: $surface;
+  border-bottom: 1px solid $border;
+}
+
+.brand {
+  color: $primary;
+  font-size: 1.15rem;
+  font-weight: 700;
+  text-decoration: none;
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+// Sur mobile, les liens sont dans la barre d'onglets du bas.
+.nav {
+  display: flex;
+  gap: $space-1;
+
+  @include mobile {
+    display: none;
+  }
+
+  a {
+    padding: $space-2 $space-3;
+    border-radius: $radius;
+    color: $text;
+    font-weight: 500;
+    text-decoration: none;
+
+    &:hover {
+      background: $bg;
+    }
+
+    &.active {
+      background: $primary-soft;
+      color: $primary;
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+  }
+}
