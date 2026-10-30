@@ -114,6 +114,7 @@ src/
     │                    accueil, lieux, itineraire, horaires, trafic, favoris, page404, dev-api
     └── components/      composants réutilisables
                          lieux-recherche (champ avec autocomplétion : départ, arrivée, favoris…)
+                         trajet-detail (un trajet : résumé, étapes, CO₂) · line-badge (pastille de ligne)
 ```
 
 Règles de dépendances :
@@ -128,7 +129,7 @@ Flux des données : `page → service (HttpClient) → intercepteurs → API PRI
 | URL | Page |
 |---|---|
 | `/accueil` | accueil (`/` y redirige) |
-| `/lieux` · `/itineraire` | recherche de lieux · calcul d'itinéraire |
+| `/lieux` · `/itineraire` | recherche de lieux · calcul d'itinéraire (`?from=…&to=…&datetime=…`, partageable par lien) |
 | `/horaires` · `/horaires/:stopAreaId` | prochains passages d'un arrêt |
 | `/trafic` · `/trafic/:lineId` | infos trafic |
 | `/favoris` | favoris |

@@ -1,7 +1,76 @@
 <section class="page">
   <h1>Itinéraire</h1>
   <p class="lead">Calcule ton trajet en transports en commun : départ, arrivée, date et heure.</p>
-  <div class="card">
-    <p><strong>En construction.</strong> Cet écran utilisera <code>ItineraireApi</code> (API Calculateur, <code>/journeys</code>).</p>
-  </div>
+
+  <form class="card form" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="places">
+      <app-lieux-recherche
+        label="Départ"
+        placeholder="D'où pars-tu ?"
+        [initialPlace]="fromPlace()"
+        (placeSelected)="form.controls.from.setValue($event)"
+        (placeCleared)="form.controls.from.setValue(null)"
+      />
+      <app-lieux-recherche
+        label="Arrivée"
+        placeholder="Où vas-tu ?"
+        [initialPlace]="toPlace()"
+        (placeSelected)="form.controls.to.setValue($event)"
+        (placeCleared)="form.controls.to.setValue(null)"
+      />
+    </div>
+
+    <fieldset class="when">
+      <legend>Quand ?</legend>
+      <label class="check">
+        <input type="checkbox" formControlName="now" />
+        Partir maintenant
+      </label>
+      @if (!leavingNow()) {
+        <label class="datetime">
+          Date et heure de départ
+          <input type="datetime-local" formControlName="when" />
+        </label>
+      }
+    </fieldset>
+
+    <p class="hint" role="status">{{ hint() }}</p>
+    <button class="btn" type="submit" [disabled]="!canSubmit()">Rechercher</button>
+  </form>
+
+  <section class="results" aria-live="polite">
+    @switch (status()) {
+      @case ('loading') {
+        <p class="state">Recherche des trajets…</p>
+      }
+      @case ('error') {
+        <p class="state error" role="alert">{{ errorMessage() }}</p>
+      }
+      @case ('done') {
+        @if (journeys().length === 0) {
+          <div class="state">
+            <p>
+              <strong>Aucun trajet trouvé</strong> entre ces deux lieux
+              {{ lastSearch()?.datetime ? 'à cette date et heure' : 'pour le moment' }}.
+            </p>
+            <p>
+              Essaie un autre jour ou un autre horaire. Dans les zones peu desservies, certains bus ne
+              circulent pas tous les jours (week-end, vacances scolaires).
+            </p>
+          </div>
+        } @else {
+          <h2>
+            {{ journeys().length }} trajet(s) : {{ lastSearch()?.from }} → {{ lastSearch()?.to }}
+          </h2>
+          <ul class="trajets">
+            @for (journey of journeys(); track $index) {
+              <li>
+                <app-trajet-detail [journey]="journey" [carCo2]="carCo2()" [open]="$first" />
+              </li>
+            }
+          </ul>
+        }
+      }
+    }
+  </section>
 </section>
