@@ -72,6 +72,18 @@
   margin: 0;
   color: $muted;
 
+  p {
+    margin: 0;
+
+    & + p {
+      margin-top: $space-2;
+    }
+  }
+
+  strong {
+    color: $text;
+  }
+
   &.error {
     padding: $space-3 $space-4;
     border: 1px solid $danger;

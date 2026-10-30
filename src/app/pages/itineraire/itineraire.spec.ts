@@ -210,9 +210,25 @@ describe('Itineraire', () => {
     it('indique clairement quand aucun trajet n’existe', async () => {
       const t = await setup(vi.fn<ItineraireApi['getJourneys']>(() => of({ journeys: [] })), urlOk);
 
-      expect(t.text('.state')).toContain('Aucun trajet trouvé');
+      expect(t.text('.state')).toContain('Aucun trajet trouvé entre ces deux lieux pour le moment.');
       expect(t.cards().length).toBe(0);
       expect(t.root.querySelector('.state.error')).toBeNull();
+    });
+
+    it("explique pourquoi un trajet peut manquer dans une zone peu desservie", async () => {
+      const t = await setup(vi.fn<ItineraireApi['getJourneys']>(() => of({ journeys: [] })), urlOk);
+
+      expect(t.text('.state')).toContain('Essaie un autre jour ou un autre horaire');
+      expect(t.text('.state')).toContain('certains bus ne circulent pas tous les jours (week-end, vacances scolaires)');
+    });
+
+    it("précise « à cette date et heure » quand une heure a été demandée", async () => {
+      const t = await setup(
+        vi.fn<ItineraireApi['getJourneys']>(() => of({ journeys: [] })),
+        url({ from: 'a', fromLabel: 'A', to: 'b', toLabel: 'B', datetime: '20261031T080000' }),
+      );
+
+      expect(t.text('.state')).toContain('Aucun trajet trouvé entre ces deux lieux à cette date et heure.');
     });
 
     it("affiche l'erreur dans une alerte", async () => {

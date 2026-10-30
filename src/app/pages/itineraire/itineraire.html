@@ -48,9 +48,16 @@
       }
       @case ('done') {
         @if (journeys().length === 0) {
-          <p class="state">
-            Aucun trajet trouvé entre ces deux lieux. Essaie un autre horaire ou un autre lieu.
-          </p>
+          <div class="state">
+            <p>
+              <strong>Aucun trajet trouvé</strong> entre ces deux lieux
+              {{ lastSearch()?.datetime ? 'à cette date et heure' : 'pour le moment' }}.
+            </p>
+            <p>
+              Essaie un autre jour ou un autre horaire. Dans les zones peu desservies, certains bus ne
+              circulent pas tous les jours (week-end, vacances scolaires).
+            </p>
+          </div>
         } @else {
           <h2>
             {{ journeys().length }} trajet(s) : {{ lastSearch()?.from }} → {{ lastSearch()?.to }}

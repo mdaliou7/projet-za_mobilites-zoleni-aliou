@@ -132,8 +132,8 @@ export class Itineraire {
   protected readonly journeys = signal<Journey[]>([]);
   protected readonly carCo2 = signal<Co2Emission | undefined>(undefined);
   protected readonly errorMessage = signal('');
-  /** Libellés de la dernière recherche, pour le titre des résultats. */
-  protected readonly lastSearch = signal<{ from: string; to: string } | null>(null);
+  /** Dernière recherche (libellés et heure demandée), pour le titre des résultats et le message « aucun trajet ». */
+  protected readonly lastSearch = signal<{ from: string; to: string; datetime?: string } | null>(null);
 
   constructor() {
     effect(() => {
@@ -211,7 +211,11 @@ export class Itineraire {
   }
 
   private show(outcome: SearchOutcome): void {
-    this.lastSearch.set({ from: outcome.request.fromLabel, to: outcome.request.toLabel });
+    this.lastSearch.set({
+      from: outcome.request.fromLabel,
+      to: outcome.request.toLabel,
+      datetime: outcome.request.datetime,
+    });
     if ('error' in outcome) {
       this.journeys.set([]);
       this.carCo2.set(undefined);
