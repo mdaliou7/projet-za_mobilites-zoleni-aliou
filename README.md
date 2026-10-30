@@ -88,10 +88,11 @@ Le détail de ces vérifications se trouve dans [docs/NOTES.md](docs/NOTES.md) e
 ```
 .
 ├── src/                 Code de l'application Angular (détail ci-dessous)
-├── public/              Fichiers statiques
+├── public/              Fichiers statiques : logo (symbole « ZA » seul), favicon et icônes
 ├── scripts/             generate-env.mjs : génère environment.ts depuis .env
 ├── docs/                NOTES.md (cadrage, quotas, CORS, démo), PRIM-API-infos.md (catalogue
-│                        des API et jeux de données PRIM), Projet.pdf (sujet)
+│                        des API et jeux de données PRIM), Projet.pdf (sujet),
+│                        branding/ (logo d'origine et script qui fabrique le logo et les icônes)
 ├── ROADMAP.md           Feuille de route : avancement, backlog, décisions, démo
 └── angular.json         Configuration Angular CLI
 ```

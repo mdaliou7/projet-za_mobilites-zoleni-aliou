@@ -27,6 +27,8 @@ Notation : projet coef 2, démo coef 1. Le sujet préfère **peu de fonctionnali
 - [x] Docs : `NOTES.md`, `PRIM-API-infos.md`, note Obsidian
 - [x] **Itinéraire** (`/itineraire`, `components/trajet-detail`, `components/line-badge`) avec empreinte CO₂ — #19 *(branche `feature/itineraire`, pas encore mergée)*
 
+- [x] **Identité visuelle** : logo « ZA » (sans le mot « Mobilités ») dans l'en-tête, favicon et icônes ; image d'origine et script de fabrication dans `docs/branding/`
+
 **Reste à faire** : prochains passages, infos trafic (écran), favoris, finitions, démo.
 
 ## Les 5 fonctionnalités (le sujet en exige 5 minimum)
