@@ -161,7 +161,7 @@ Règle : ces enrichissements se **branchent sur les 5 fonctionnalités** (ex. l'
 
 ## Architecture (validée le 2026-10-28)
 
-Détail et règles de dépendances dans le [README](README.md#architecture-de-lapplication) : `services/` (un service par domaine, `@Service()`), `interceptors/`, `models/`, `config/`, `layout/`, `pages/` (routes en lazy loading, `page404` pour les URL inconnues), `components/` (réutilisables).
+Détail et règles de dépendances dans le [README](../README.md#architecture-de-lapplication) : `services/` (un service par domaine, `@Service()`), `interceptors/`, `models/`, `config/`, `layout/`, `pages/` (routes en lazy loading, `page404` pour les URL inconnues), `components/` (réutilisables).
 
 ## Organisation
 
@@ -170,6 +170,8 @@ Détail et règles de dépendances dans le [README](README.md#architecture-de-la
 - Backlog de tâches à faire valider par le prof (une tâche = une fonctionnalité ou un composant)
 
 ### Planning proposé (rendu le 01/12, démo le 02/12)
+
+> ⚠️ Ce planning date du 26/10. La version à jour, avec le backlog détaillé et les décisions à prendre, est dans la [feuille de route](../ROADMAP.md).
 
 | Période | Objectif |
 |---|---|

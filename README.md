@@ -18,7 +18,7 @@ Chaque fonctionnalité repose sur un appel d'API, comme l'exige le sujet.
 | 4 | **Infos trafic** : perturbations par ligne ou par mode | Messages Info Trafic v2 (`/line_reports`) |
 | 5 | **Favoris** : lieux, arrêts et trajets enregistrés, rafraîchis via l'API | Les trois API ci-dessus |
 
-**Angle distinctif** : plutôt qu'un calculateur de plus, l'application vise à « se déplacer mieux » en enrichissant ces fonctionnalités avec des jeux de données PRIM (accessibilité et état des ascenseurs, empreinte CO₂ d'un trajet, positionnement dans la rame). Ces pistes sont détaillées dans [NOTES.md](NOTES.md).
+**Angle distinctif** : plutôt qu'un calculateur de plus, l'application vise à « se déplacer mieux » en enrichissant ces fonctionnalités avec des jeux de données PRIM (accessibilité et état des ascenseurs, empreinte CO₂ d'un trajet, positionnement dans la rame). Ces pistes sont détaillées dans [docs/NOTES.md](docs/NOTES.md).
 
 ## Stack technique
 
@@ -81,7 +81,7 @@ Ouvrir ensuite [http://localhost:4200](http://localhost:4200). L'application se 
 - **Identifiants** : le Calculateur utilise des identifiants `IDFM:xxxxx`, les Prochains passages des identifiants `STIF:StopArea:SP:xxxxx:`. Ils sont différents. Pour les favoris, on stocke la zone d'arrêts (`stop_area`) plutôt que le point d'arrêt, dont l'identifiant change chaque jour pour les bus.
 - **Temps réel** : disponible sur une partie seulement du réseau, voir le jeu de données « Périmètre des données temps réel disponibles ».
 
-Le détail de ces vérifications se trouve dans [NOTES.md](NOTES.md) et [PRIM-API-infos.md](PRIM-API-infos.md).
+Le détail de ces vérifications se trouve dans [docs/NOTES.md](docs/NOTES.md) et [docs/PRIM-API-infos.md](docs/PRIM-API-infos.md).
 
 ## Structure du dépôt
 
@@ -90,9 +90,9 @@ Le détail de ces vérifications se trouve dans [NOTES.md](NOTES.md) et [PRIM-AP
 ├── src/                 Code de l'application Angular (détail ci-dessous)
 ├── public/              Fichiers statiques
 ├── scripts/             generate-env.mjs : génère environment.ts depuis .env
-├── NOTES.md             Cadrage, quotas, CORS, planning, démo
-├── PRIM-API-infos.md    Catalogue des API et jeux de données PRIM
-├── Projet.pdf           Sujet du projet
+├── docs/                NOTES.md (cadrage, quotas, CORS, démo), PRIM-API-infos.md (catalogue
+│                        des API et jeux de données PRIM), Projet.pdf (sujet)
+├── ROADMAP.md           Feuille de route : avancement, backlog, décisions, démo
 └── angular.json         Configuration Angular CLI
 ```
 
@@ -142,6 +142,7 @@ Flux des données : `page → service (HttpClient) → intercepteurs → API PRI
 - Dépôt et projet nommés `projet-nomduprojet-prénom1-prénom2`, comme demandé dans le sujet.
 - Travail sur des branches avec merge requests, aucun commit direct sur `main`.
 - **Rendu** : 01/12/2026 à 23h59. **Démo** : 02/12/2026, 15 minutes, sans code.
+- **Feuille de route** : [ROADMAP.md](ROADMAP.md) (avancement, backlog par fonctionnalité, décisions à prendre, démo).
 
 ## Licence
 
