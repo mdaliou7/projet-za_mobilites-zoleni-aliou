@@ -1,5 +1,9 @@
 <header class="header">
-  <a class="brand" routerLink="/accueil">{{ appName }}</a>
+  <a class="brand" routerLink="/accueil">
+    <!-- Le logo est décoratif (alt vide) : c'est le texte masqué qui donne son nom au lien. -->
+    <img class="brand-logo" src="logo-za.png" alt="" width="400" height="240" />
+    <span class="visually-hidden">{{ appName }}</span>
+  </a>
   <nav class="nav" aria-label="Navigation principale">
     @for (link of links; track link.path) {
       <a [routerLink]="['/', link.path]" routerLinkActive="active">{{ link.label }}</a>

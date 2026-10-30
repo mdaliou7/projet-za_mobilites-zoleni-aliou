@@ -16,14 +16,20 @@
 }
 
 .brand {
-  color: $primary;
-  font-size: 1.15rem;
-  font-weight: 700;
-  text-decoration: none;
+  display: flex;
+  align-items: center;
+  border-radius: $radius;
 
   &:focus-visible {
     @include focus-ring;
   }
+}
+
+// Le logo (symbole « ZA » seul, sans le mot « Mobilités ») : 40 px de haut, la largeur suit.
+.brand-logo {
+  display: block;
+  width: auto;
+  height: 2.5rem;
 }
 
 // Sur mobile, les liens sont dans la barre d'onglets du bas.
