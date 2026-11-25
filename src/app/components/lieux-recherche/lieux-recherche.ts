@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { catchError, debounceTime, map, of, switchMap, tap } from 'rxjs';
@@ -31,10 +31,16 @@ type SearchOutcome = { places: Place[] } | { error: unknown } | null;
 export class LieuxRecherche {
   readonly label = input.required<string>();
   readonly placeholder = input('Adresse, arrêt ou gare');
+  /** Lieu à afficher dans le champ au départ (ex. restauré depuis l'URL) ; ne lance pas de recherche. */
+  readonly initialPlace = input<Place | null>(null);
   /** Émis quand l'utilisateur choisit une suggestion. */
   readonly placeSelected = output<Place>();
+  /** Émis quand l'utilisateur modifie le texte après avoir choisi un lieu : la sélection n'est plus valable. */
+  readonly placeCleared = output<void>();
 
   private readonly api = inject(LieuxApi);
+  /** Nom du lieu actuellement choisi, `null` si le champ contient du texte libre. */
+  private selectedName: string | null = null;
 
   protected readonly inputId = `lieux-recherche-${nextId++}`;
   protected readonly listId = `${this.inputId}-liste`;
@@ -57,6 +63,25 @@ export class LieuxRecherche {
   );
 
   constructor() {
+    effect(() => {
+      const place = this.initialPlace();
+      untracked(() => {
+        if (place) {
+          this.selectedName = place.name;
+          // `emitEvent: false` : préremplir le champ ne relance pas de recherche.
+          this.query.setValue(place.name, { emitEvent: false });
+        }
+      });
+    });
+
+    // Dès que le texte change après un choix, la sélection est caduque (avant même le délai de frappe).
+    this.query.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
+      if (this.selectedName !== null && value !== this.selectedName) {
+        this.selectedName = null;
+        this.placeCleared.emit();
+      }
+    });
+
     this.query.valueChanges
       .pipe(
         debounceTime(DEBOUNCE_MS),
@@ -81,6 +106,7 @@ export class LieuxRecherche {
   /** `mousedown` plutôt que `click` : le champ garde le focus et ne se ferme pas avant le choix. */
   protected select(place: Place, event?: Event): void {
     event?.preventDefault();
+    this.selectedName = place.name;
     // `emitEvent: false` : remplir le champ avec le nom choisi ne relance pas de recherche.
     this.query.setValue(place.name, { emitEvent: false });
     this.open.set(false);

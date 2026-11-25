@@ -1,0 +1,83 @@
+<details class="trajet" [open]="open()">
+  <summary>
+    <span class="times">{{ departure() }} → {{ arrival() }}</span>
+    <span class="duration">{{ duration() }}</span>
+    <span class="transfers">{{ transfers() }}</span>
+    <span class="lines">
+      @for (section of lines(); track $index) {
+        <app-line-badge
+          [label]="lineLabel(section)"
+          [color]="section.display_informations?.color"
+          [textColor]="section.display_informations?.text_color"
+        />
+      }
+    </span>
+  </summary>
+
+  <ol class="steps">
+    @for (section of journey().sections; track $index) {
+      <li class="step" [attr.data-type]="section.type">
+        @switch (stepKind(section)) {
+          @case ('public_transport') {
+            <app-line-badge
+              [label]="lineLabel(section)"
+              [color]="section.display_informations?.color"
+              [textColor]="section.display_informations?.text_color"
+            />
+            <div class="step-text">
+              <strong>
+                {{ section.display_informations?.commercial_mode }}
+                @if (section.display_informations?.direction; as direction) {
+                  direction {{ direction }}
+                }
+              </strong>
+              <span class="detail">
+                {{ time(section.departure_date_time) }} {{ section.from?.name }} →
+                {{ time(section.arrival_date_time) }} {{ section.to?.name }} · {{ sectionDuration(section) }}
+              </span>
+            </div>
+          }
+          @case ('street_network') {
+            <span class="icon" aria-hidden="true">•</span>
+            <div class="step-text">
+              <strong>{{ modeLabel(section.mode) }} · {{ sectionDuration(section) }}</strong>
+              @if (hasDistinctPlaces(section)) {
+                <span class="detail">de {{ section.from?.name }} à {{ section.to?.name }}</span>
+              }
+            </div>
+          }
+          @case ('transfer') {
+            <span class="icon" aria-hidden="true">•</span>
+            <div class="step-text">
+              <strong>Correspondance à pied · {{ sectionDuration(section) }}</strong>
+              @if (hasDistinctPlaces(section)) {
+                <span class="detail">de {{ section.from?.name }} à {{ section.to?.name }}</span>
+              }
+            </div>
+          }
+          @case ('waiting') {
+            <span class="icon" aria-hidden="true">•</span>
+            <div class="step-text">
+              <strong>Attente · {{ sectionDuration(section) }}</strong>
+            </div>
+          }
+          @default {
+            <span class="icon" aria-hidden="true">•</span>
+            <div class="step-text">
+              <strong>{{ sectionDuration(section) }}</strong>
+            </div>
+          }
+        }
+      </li>
+    }
+  </ol>
+
+  @if (co2(); as co2) {
+    <p class="co2">
+      Empreinte : environ <strong>{{ co2.own }}</strong> de CO₂e par voyageur
+      @if (co2.car) {
+        (en voiture : {{ co2.car }})
+      }
+    </p>
+  }
+</details>

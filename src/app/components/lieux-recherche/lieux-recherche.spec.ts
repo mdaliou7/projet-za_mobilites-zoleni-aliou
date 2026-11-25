@@ -29,6 +29,7 @@ describe('LieuxRecherche', () => {
     fixture.componentInstance.placeSelected.subscribe((p) => chosen.push(p));
 
     return {
+      fixture,
       root,
       input,
       searchPlaces,
@@ -200,5 +201,55 @@ describe('LieuxRecherche', () => {
 
     expect(t.options().length).toBe(0);
     expect(t.status()).toContain('Tape au moins 3 caractères');
+  });
+
+  it('signale que la sélection est caduque dès que le texte est modifié', () => {
+    const t = setup(() => of({ places: [chatelet] }));
+    let effacements = 0;
+    t.fixture.componentInstance.placeCleared.subscribe(() => effacements++);
+
+    t.type('chat');
+    t.wait(350);
+    t.options()[0].dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+    expect(effacements).toBe(0);
+
+    t.type('Châtelet (Paris) 1'); // le texte change : le lieu choisi n'est plus celui du champ
+    expect(effacements).toBe(1);
+    t.type('Châtelet (Paris) 12'); // déjà caduque : pas de nouvel événement
+    expect(effacements).toBe(1);
+  });
+
+  it("ne signale rien tant qu'aucun lieu n'a été choisi", () => {
+    const t = setup(() => of({ places: [chatelet] }));
+    let effacements = 0;
+    t.fixture.componentInstance.placeCleared.subscribe(() => effacements++);
+
+    t.type('chat');
+    t.type('chate');
+
+    expect(effacements).toBe(0);
+  });
+
+  it('préremplit le champ avec le lieu initial sans lancer de recherche', () => {
+    const t = setup(() => of({ places: [chatelet] }));
+
+    t.fixture.componentRef.setInput('initialPlace', chatelet);
+    t.fixture.detectChanges();
+    t.wait(1000);
+
+    expect(t.input.value).toBe('Châtelet (Paris)');
+    expect(t.searchPlaces).not.toHaveBeenCalled();
+  });
+
+  it('signale aussi la modification du texte d’un lieu prérempli', () => {
+    const t = setup(() => of({ places: [chatelet] }));
+    let effacements = 0;
+    t.fixture.componentInstance.placeCleared.subscribe(() => effacements++);
+    t.fixture.componentRef.setInput('initialPlace', chatelet);
+    t.fixture.detectChanges();
+
+    t.type('Châtelet');
+
+    expect(effacements).toBe(1);
   });
 });
