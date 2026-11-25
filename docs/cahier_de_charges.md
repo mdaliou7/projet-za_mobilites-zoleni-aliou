@@ -2,7 +2,7 @@
 
 **Projet :** ZA Mobilités
 **Auteurs :** Aliou, Zoleni  
-**Formation :** Licence Informatique — Paris 1 Panthéon-Sorbonne  
+**Formation :** M1 MIAGE — Paris 1 Panthéon-Sorbonne  
 **Date de rédaction :** 28 Octobre 2026  
 **Version :** 1.1
 
